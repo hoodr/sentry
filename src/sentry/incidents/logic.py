@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from sentry import analytics
 from sentry.api.event_search import get_filter, resolve_field
+from sentry.constants import SentryAppInstallationStatus
 from sentry.incidents import tasks
 from sentry.incidents.models import (
     AlertRule,
@@ -35,7 +36,7 @@ from sentry.incidents.models import (
     TimeSeriesSnapshot,
     TriggerStatus,
 )
-from sentry.models import Integration, Project, PagerDutyService
+from sentry.models import Integration, Project, PagerDutyService, SentryApp
 from sentry.snuba.dataset import Dataset
 from sentry.snuba.models import QueryDatasets
 from sentry.snuba.subscriptions import (
@@ -1204,6 +1205,13 @@ def get_available_action_integrations_for_org(organization):
     ]
     return Integration.objects.filter(organizations=organization, provider__in=providers)
 
+
+def get_alertable_sentry_apps(organization_id):
+    return SentryApp.objects.filter(
+        installations__organization_id=organization_id,
+        is_alertable=True,
+        installations__status=SentryAppInstallationStatus.INSTALLED,
+    ).distinct()
 
 # TODO: This is temporarily needed to support back and forth translations for snuba / frontend.
 # Uses a function from discover to break the aggregate down into parts, and then compare the "field"

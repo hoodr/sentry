@@ -5,6 +5,7 @@ from __future__ import absolute_import
 
 from django import forms
 
+from sentry.incidents.logic import get_alertable_sentry_apps
 from sentry.plugins.base import plugins
 from sentry.rules.actions.base import EventAction
 from sentry.rules.actions.services import PluginService, SentryAppService
@@ -88,13 +89,10 @@ class NotifyEventServiceAction(EventAction):
             yield self.future(plugin.rule_notify)
 
     def get_sentry_app_services(self):
-        apps = SentryApp.objects.filter(
-            installations__organization_id=self.project.organization_id,
-            is_alertable=True,
-            installations__status=SentryAppInstallationStatus.INSTALLED,
-        ).distinct()
-        results = [SentryAppService(app) for app in apps]
-        return results
+        return [
+            SentryAppService(app)
+            for app in get_alertable_sentry_apps(self.project.organization_id)
+        ]
 
     def get_plugins(self):
         from sentry.plugins.bases.notify import NotificationPlugin
