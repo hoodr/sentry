@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from sentry.constants import SentryAppStatus
 from sentry.models import Integration
 from sentry.testutils import APITestCase
 
@@ -12,13 +13,28 @@ class OrganizationAlertRuleAvailableActionIndexEndpointTest(APITestCase):
         self.login_as(self.user)
 
     def create_integration_response(self, type, integration=None):
-        return {
-            "type": type,
-            "allowedTargetTypes": ["user", "team"] if type == "email" else ["specific"],
-            "integrationName": integration.name if integration else None,
-            "integrationId": integration.id if integration else None,
-            "inputType": "select" if type in ["pagerduty", "email"] else "text",
-        }
+        response = {"type": type}
+        if type == "email":
+            response["allowedTargetTypes"] = ["user", "team"]
+            response["inputType"] = "select"
+        elif type == "pagerduty":
+            response["allowedTargetTypes"] = ["specific"]
+            response["inputType"] = "select"
+        elif type == "slack":
+            response["allowedTargetTypes"] = ["specific"]
+            response["inputType"] = "text"
+        elif type == "sentry_app":
+            response["allowedTargetTypes"] = []
+            response["status"] = SentryAppStatus.as_str(integration.status)
+        elif type == "msteams":
+            response["allowedTargetTypes"] = ["specific"]
+            response["inputType"] = "text"
+
+        if integration:
+            response["integrationName"] = integration.name
+            response["integrationId"] = integration.id
+
+        return response
 
     def test_no_integrations(self):
         with self.feature("organizations:incidents"):
@@ -59,3 +75,21 @@ class OrganizationAlertRuleAvailableActionIndexEndpointTest(APITestCase):
         self.create_team(organization=self.organization, members=[self.user])
         resp = self.get_response(self.organization.slug)
         assert resp.status_code == 404
+
+    def test_sentry_apps(self):
+        sentry_app = self.create_sentry_app(
+            name="foo", organization=self.organization, is_alertable=True, verify_install=False
+        )
+        self.create_sentry_app_installation(
+            slug=sentry_app.slug, organization=self.organization, user=self.user
+        )
+
+        with self.feature(
+            ["organizations:incidents", "organizations:integrations-sentry-app-metric-alerts"]
+        ):
+            resp = self.get_valid_response(self.organization.slug)
+
+        assert resp.data == [
+            self.create_integration_response("sentry_app", sentry_app),
+            self.create_integration_response("email"),
+        ]
