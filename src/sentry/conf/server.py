@@ -852,6 +852,8 @@ SENTRY_FEATURES = {
     "organizations:integrations-vsts-limited-scopes": False,
     # Enable PagerDuty metric alerts
     "organizations:integrations-pagerduty-metric-alerts": False,
+    # Use Sentry Apps with Metric Alerts
+    "organizations:integrations-sentry-app-metric-alerts": False,
     # Enable data forwarding functionality for organizations.
     "organizations:data-forwarding": True,
     # Enable experimental performance improvements.
