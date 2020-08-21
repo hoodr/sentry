@@ -68,19 +68,25 @@ class OrganizationAlertRuleAvailableActionIndexEndpoint(OrganizationEndpoint):
 
         actions = []
 
-        integrations = get_available_action_integrations_for_org(organization).order_by("id")
+        # Cache Integration objects in this data structure to save DB calls.
         provider_integrations = defaultdict(list)
-        for integration in integrations:
+        for integration in get_available_action_integrations_for_org(organization):
             provider_integrations[integration.provider].append(integration)
-        registered_types = AlertRuleTriggerAction.get_registered_types()
-        registered_types.sort(key=lambda x: x.slug)
 
         for registered_type in AlertRuleTriggerAction.get_registered_types():
+            # Used cached integrations for each `registered_type` instead of making N calls.
             if registered_type.integration_provider:
                 for integration in provider_integrations[registered_type.integration_provider]:
                     actions.append(
                         self.build_action_response(organization, registered_type, integration)
                     )
+
+            # TODO MARCOS Describe
+            elif registered_type.slug == "sentry_app":
+                if features.has("organizations:integrations-sentry-app-metric-alerts", organization, actor=request.user):
+                    for app in get_alertable_sentry_apps(organization.id):
+                        actions.append(self.build_action_response(organization, registered_type, app))
+
             else:
                 actions.append(self.build_action_response(organization, registered_type))
         return Response(actions, status=status.HTTP_200_OK)
