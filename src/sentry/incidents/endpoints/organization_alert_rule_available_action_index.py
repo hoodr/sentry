@@ -7,6 +7,7 @@ from rest_framework.response import Response
 
 from sentry import features
 from sentry.api.exceptions import ResourceDoesNotExist
+from sentry.constants import SentryAppStatus
 from sentry.incidents.endpoints.bases import OrganizationEndpoint
 from sentry.incidents.endpoints.serializers import action_target_type_to_string
 from sentry.incidents.logic import get_available_action_integrations_for_org, get_alertable_sentry_apps
@@ -53,6 +54,8 @@ class OrganizationAlertRuleAvailableActionIndexEndpoint(OrganizationEndpoint):
 
             if registered_type.type.value == AlertRuleTriggerAction.Type.PAGERDUTY.value:
                 action_response["options"] = self.fetch_pagerduty_services(organization, integration.id)
+            elif registered_type.type.value == AlertRuleTriggerAction.Type.SENTRY_APP.value:
+                action_response["status"] = SentryAppStatus.as_str(integration.status)
 
         return action_response
 

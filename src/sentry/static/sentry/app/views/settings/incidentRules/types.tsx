@@ -129,6 +129,11 @@ export type MetricActionTemplate = {
    * If the inputType is select, these are the options to select from
    */
   options: Array<{label: string; value: any}> | null;
+
+  /**
+   * TODO MARCOS
+   */
+  status: string;
 };
 
 /**
@@ -184,4 +189,9 @@ export type UnsavedAction = {
    * If the inputType is select, these are the options to select from
    */
   options: Array<{label: string; value: any}> | null;
+
+  /**
+   * TODO MARCOS
+   */
+  status: string;
 };

@@ -85,6 +85,7 @@ const getCleanAction = (actionConfig): Action => {
     integrationId: actionConfig.integrationId,
     inputType: actionConfig.inputType,
     options: actionConfig.options || null,
+    status: '', // TODO
   };
 };
 
@@ -101,7 +102,6 @@ const getActionUniqueKey = ({
   return `${type}-${integrationId}`;
 };
 
-// TODO MARCOS might use (internal/private) here
 /**
  * Creates a human-friendly display name for the integration based on type and
  * server provided `integrationName`
@@ -111,11 +111,15 @@ const getActionUniqueKey = ({
 const getFullActionTitle = ({
   type,
   integrationName,
-}: Pick<MetricActionTemplate, 'type' | 'integrationName'>) => {
-  return `${ActionLabel[type]}${integrationName ? ` - ${integrationName}` : ''}`;
+  status,
+}: Pick<MetricActionTemplate, 'type' | 'integrationName' | 'status'>) => {
+  let output = [ActionLabel[type], integrationName].filter(x => !!x).join(' - ');
+  if (integrationName && status === 'internal') {
+    output += ` (${status})`;
+  }
+  return output;
 };
 
-// TODO MARCOS 0.1 Start here.
 /**
  * Lists saved actions as well as control to add a new action
  */
