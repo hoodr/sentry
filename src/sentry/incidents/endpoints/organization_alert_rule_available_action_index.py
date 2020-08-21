@@ -31,29 +31,29 @@ class OrganizationAlertRuleAvailableActionIndexEndpoint(OrganizationEndpoint):
             for target_type in registered_type.supported_target_types
         ]
 
-        input_type = (
-            "select"
-            if registered_type.type.value
-            in [
-                AlertRuleTriggerAction.Type.PAGERDUTY.value,
-                AlertRuleTriggerAction.Type.EMAIL.value,
-            ]
-            else "text"
-        )
-
         action_response = {
             "type": registered_type.slug,
             "allowedTargetTypes": allowed_target_types,
-            "integrationName": integration.name if integration else None,
-            "integrationId": integration.id if integration else None,
-            "inputType": input_type,
         }
 
-        if (
-            integration
-            and registered_type.type.value == AlertRuleTriggerAction.Type.PAGERDUTY.value
-        ):
-            action_response["options"] = self.fetch_pagerduty_services(organization, integration.id)
+        if registered_type.type.value in [
+            AlertRuleTriggerAction.Type.PAGERDUTY.value,
+            AlertRuleTriggerAction.Type.EMAIL.value,
+        ]:
+            action_response["inputType"] = "select"
+        elif registered_type.type.value in [
+            AlertRuleTriggerAction.Type.SLACK.value,
+            AlertRuleTriggerAction.Type.MSTEAMS.value,
+        ]:
+            action_response["inputType"] = "text"
+
+        if integration:
+            action_response["integrationName"] = integration.name
+            action_response["integrationId"] = integration.id
+
+            if registered_type.type.value == AlertRuleTriggerAction.Type.PAGERDUTY.value:
+                action_response["options"] = self.fetch_pagerduty_services(organization, integration.id)
+
         return action_response
 
     def get(self, request, organization):
