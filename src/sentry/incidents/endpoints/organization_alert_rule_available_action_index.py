@@ -10,7 +10,10 @@ from sentry.api.exceptions import ResourceDoesNotExist
 from sentry.constants import SentryAppStatus
 from sentry.incidents.endpoints.bases import OrganizationEndpoint
 from sentry.incidents.endpoints.serializers import action_target_type_to_string
-from sentry.incidents.logic import get_available_action_integrations_for_org, get_alertable_sentry_apps
+from sentry.incidents.logic import (
+    get_available_action_integrations_for_org,
+    get_alertable_sentry_apps,
+)
 from sentry.incidents.models import AlertRuleTriggerAction
 from sentry.models import PagerDutyService
 
@@ -53,7 +56,9 @@ class OrganizationAlertRuleAvailableActionIndexEndpoint(OrganizationEndpoint):
             action_response["integrationId"] = integration.id
 
             if registered_type.type.value == AlertRuleTriggerAction.Type.PAGERDUTY.value:
-                action_response["options"] = self.fetch_pagerduty_services(organization, integration.id)
+                action_response["options"] = self.fetch_pagerduty_services(
+                    organization, integration.id
+                )
             elif registered_type.type.value == AlertRuleTriggerAction.Type.SENTRY_APP.value:
                 action_response["status"] = SentryAppStatus.as_str(integration.status)
 
@@ -81,11 +86,17 @@ class OrganizationAlertRuleAvailableActionIndexEndpoint(OrganizationEndpoint):
                         self.build_action_response(organization, registered_type, integration)
                     )
 
-            # TODO MARCOS Describe
+            # Add all alertable Sentry Apps to the list.
             elif registered_type.slug == "sentry_app":
-                if features.has("organizations:integrations-sentry-app-metric-alerts", organization, actor=request.user):
+                if features.has(
+                    "organizations:integrations-sentry-app-metric-alerts",
+                    organization,
+                    actor=request.user,
+                ):
                     for app in get_alertable_sentry_apps(organization.id):
-                        actions.append(self.build_action_response(organization, registered_type, app))
+                        actions.append(
+                            self.build_action_response(organization, registered_type, app)
+                        )
 
             else:
                 actions.append(self.build_action_response(organization, registered_type))

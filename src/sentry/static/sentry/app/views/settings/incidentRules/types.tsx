@@ -131,9 +131,9 @@ export type MetricActionTemplate = {
   options: Array<{label: string; value: any}> | null;
 
   /**
-   * TODO MARCOS
+   * If this is a `sentry_app` action, this is the Sentry App's status.
    */
-  status: string;
+  status: 'unpublished' | 'published' | 'internal' | null;
 };
 
 /**
@@ -191,7 +191,7 @@ export type UnsavedAction = {
   options: Array<{label: string; value: any}> | null;
 
   /**
-   * TODO MARCOS
+   * If this is a `sentry_app` action, this is the Sentry App's status.
    */
-  status: string;
+  status: 'unpublished' | 'published' | 'internal' | null;
 };
