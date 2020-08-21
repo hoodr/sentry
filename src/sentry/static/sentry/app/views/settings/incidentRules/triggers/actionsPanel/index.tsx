@@ -268,9 +268,6 @@ class ActionsPanel extends React.PureComponent<Props> {
             return (
               actions &&
               actions.map((action: Action, i: number) => {
-                const isUser = action.targetType === TargetType.USER;
-                const isTeam = action.targetType === TargetType.TEAM;
-
                 const availableAction = availableActions?.find(
                   a => getActionUniqueKey(a) === getActionUniqueKey(action)
                 );
@@ -312,45 +309,61 @@ class ActionsPanel extends React.PureComponent<Props> {
                     ) : (
                       <span />
                     )}
+                    {(() => {
+                      switch (action.targetType) {
+                        case TargetType.TEAM:
+                        case TargetType.USER:
+                          const isTeam = action.targetType === TargetType.TEAM;
 
-                    {isUser || isTeam ? (
-                      <SelectMembers
-                        disabled={disabled}
-                        key={isTeam ? 'team' : 'member'}
-                        showTeam={isTeam}
-                        project={projects.find(({slug}) => slug === currentProject)}
-                        organization={organization}
-                        value={action.targetIdentifier}
-                        onChange={this.handleChangeTargetIdentifier.bind(
-                          this,
-                          triggerIndex,
-                          i
-                        )}
-                      />
-                    ) : availableAction?.inputType === 'select' ? (
-                      <SelectControl
-                        isDisabled={disabled || loading}
-                        value={action.targetIdentifier}
-                        options={availableAction?.options || []}
-                        onChange={this.handleChangeTargetIdentifier.bind(
-                          this,
-                          triggerIndex,
-                          i
-                        )}
-                      />
-                    ) : (
-                      <Input
-                        disabled={disabled}
-                        key={action.type}
-                        value={action.targetIdentifier}
-                        onChange={this.handleChangeSpecificTargetIdentifier.bind(
-                          this,
-                          triggerIndex,
-                          i
-                        )}
-                        placeholder={getPlaceholderForType(action.type)}
-                      />
-                    )}
+                          return (
+                            <SelectMembers
+                              disabled={disabled}
+                              key={isTeam ? 'team' : 'member'}
+                              showTeam={isTeam}
+                              project={projects.find(({slug}) => slug === currentProject)}
+                              organization={organization}
+                              value={action.targetIdentifier}
+                              onChange={this.handleChangeTargetIdentifier.bind(
+                                this,
+                                triggerIndex,
+                                i
+                              )}
+                            />
+                          );
+
+                        case TargetType.SPECIFIC:
+                          if (availableAction?.inputType === 'select') {
+                            return (
+                              <SelectControl
+                                isDisabled={disabled || loading}
+                                value={action.targetIdentifier}
+                                options={availableAction?.options || []}
+                                onChange={this.handleChangeTargetIdentifier.bind(
+                                  this,
+                                  triggerIndex,
+                                  i
+                                )}
+                              />
+                            );
+                          } else {
+                            return (
+                              <Input
+                                disabled={disabled}
+                                key={action.type}
+                                value={action.targetIdentifier}
+                                onChange={this.handleChangeSpecificTargetIdentifier.bind(
+                                  this,
+                                  triggerIndex,
+                                  i
+                                )}
+                                placeholder={getPlaceholderForType(action.type)}
+                              />
+                            );
+                          }
+                        default:
+                          return <span />;
+                      }
+                    })()}
                     <DeleteActionButton
                       triggerIndex={triggerIndex}
                       index={i}
