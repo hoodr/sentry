@@ -48,6 +48,7 @@ class AlertRuleTriggerActionSerializer(Serializer):
             ],
             "targetIdentifier": self.get_identifier_from_action(obj),
             "integrationId": obj.integration_id,
+            "sentryAppId": obj.sentry_app_id,
             "dateCreated": obj.date_added,
             "desc": self.human_desc(obj),
         }
