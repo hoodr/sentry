@@ -24,7 +24,7 @@ class OrganizationAlertRuleAvailableActionIndexEndpointTest(APITestCase):
             response["allowedTargetTypes"] = ["specific"]
             response["inputType"] = "text"
         elif type == "sentry_app":
-            response["allowedTargetTypes"] = []
+            response["allowedTargetTypes"] = ["sentry_app"]
             response["status"] = SentryAppStatus.as_str(integration.status)
         elif type == "msteams":
             response["allowedTargetTypes"] = ["specific"]
