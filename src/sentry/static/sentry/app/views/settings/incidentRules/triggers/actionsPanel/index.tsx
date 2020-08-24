@@ -70,7 +70,6 @@ const getCleanAction = (actionConfig): Action => {
     integrationId: actionConfig.integrationId,
     inputType: actionConfig.inputType,
     options: actionConfig.options || null,
-    status: '', // TODO
   };
 };
 

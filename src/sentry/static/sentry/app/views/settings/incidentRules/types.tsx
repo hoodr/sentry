@@ -133,7 +133,7 @@ export type MetricActionTemplate = {
   /**
    * If this is a `sentry_app` action, this is the Sentry App's status.
    */
-  status: 'unpublished' | 'published' | 'internal' | null;
+  status?: 'unpublished' | 'published' | 'internal';
 };
 
 /**
@@ -193,5 +193,5 @@ export type UnsavedAction = {
   /**
    * If this is a `sentry_app` action, this is the Sentry App's status.
    */
-  status: 'unpublished' | 'published' | 'internal' | null;
+  status?: 'unpublished' | 'published' | 'internal';
 };
