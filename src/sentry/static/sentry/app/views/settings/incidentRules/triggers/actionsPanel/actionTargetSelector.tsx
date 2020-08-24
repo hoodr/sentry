@@ -74,12 +74,13 @@ export default function ActionTargetSelector(props: Props) {
       );
 
     case TargetType.SPECIFIC:
-      if (availableAction?.inputType === 'select') {
+      // If options is not null or undefined.
+      if (availableAction?.options) {
         return (
           <SelectControl
             isDisabled={disabled || loading}
             value={action.targetIdentifier}
-            options={availableAction?.options || []}
+            options={availableAction?.options}
             onChange={handleChangeTargetIdentifier}
           />
         );

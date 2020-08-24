@@ -16,19 +16,15 @@ class OrganizationAlertRuleAvailableActionIndexEndpointTest(APITestCase):
         response = {"type": type}
         if type == "email":
             response["allowedTargetTypes"] = ["user", "team"]
-            response["inputType"] = "select"
         elif type == "pagerduty":
             response["allowedTargetTypes"] = ["specific"]
-            response["inputType"] = "select"
         elif type == "slack":
             response["allowedTargetTypes"] = ["specific"]
-            response["inputType"] = "text"
         elif type == "sentry_app":
             response["allowedTargetTypes"] = ["sentry_app"]
             response["status"] = SentryAppStatus.as_str(integration.status)
         elif type == "msteams":
             response["allowedTargetTypes"] = ["specific"]
-            response["inputType"] = "text"
 
         if integration:
             response["integrationName"] = integration.name

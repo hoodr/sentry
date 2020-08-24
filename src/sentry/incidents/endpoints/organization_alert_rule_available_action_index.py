@@ -40,17 +40,6 @@ class OrganizationAlertRuleAvailableActionIndexEndpoint(OrganizationEndpoint):
             "allowedTargetTypes": allowed_target_types,
         }
 
-        if registered_type.type.value in [
-            AlertRuleTriggerAction.Type.PAGERDUTY.value,
-            AlertRuleTriggerAction.Type.EMAIL.value,
-        ]:
-            action_response["inputType"] = "select"
-        elif registered_type.type.value in [
-            AlertRuleTriggerAction.Type.SLACK.value,
-            AlertRuleTriggerAction.Type.MSTEAMS.value,
-        ]:
-            action_response["inputType"] = "text"
-
         if integration:
             action_response["integrationName"] = integration.name
             action_response["integrationId"] = integration.id
